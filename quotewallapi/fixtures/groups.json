@@ -1,0 +1,24 @@
+[
+    {
+        "model": "quotewallapi.group",
+        "pk": 1,
+        "fields": {
+            "name": "The Office",
+            "description": "Quotes from the show The Office(us)",
+            "admin": 1,
+            "private": false,
+            "created_on": "2021-09-11"
+        }
+    },
+    {
+        "model": "quotewallapi.group",
+        "pk": 2,
+        "fields": {
+            "name": "Kanye Kwotes",
+            "description": "Quotes from the enigma himself",
+            "admin": 1,
+            "private": false,
+            "created_on": "2021-09-12"
+        }
+    }
+]

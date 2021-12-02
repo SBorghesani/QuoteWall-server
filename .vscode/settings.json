@@ -5,4 +5,12 @@
         "--load-plugins=pylint_django",
         "--django-settings-module=quotewall.settings",
     ],
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "quotewall database",
+            "database": "db.sqlite3"
+        }
+    ],
 }

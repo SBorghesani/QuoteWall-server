@@ -1,0 +1,62 @@
+[
+    {
+        "model": "quotewallapi.quote",
+        "pk": 1,
+        "fields": {
+            "user": 1,
+            "group": 1,
+            "quote_text": "Why say many word when few word do trick?",
+            "quoter": "Kevin Malone",
+            "context": "Kevin tries to become an efficient speaker",
+            "date_added": "2021-11-11"
+        }
+    },
+    {
+        "model": "quotewallapi.quote",
+        "pk": 2,
+        "fields": {
+            "user": 1,
+            "group": 1,
+            "quote_text": "Save Bandit!",
+            "quoter": "Angela Martin",
+            "context": "Angela begs Oscar to save her cat during Dwight's fire drill",
+            "date_added": "2021-11-23"
+        }
+    },
+    {
+        "model": "quotewallapi.quote",
+        "pk": 3,
+        "fields": {
+            "user": 1,
+            "group": 1,
+            "quote_text": "Oh… It’s uh, a Repliee Q1 Expo female robot, they’re only available in Japan.",
+            "quoter": "Dwight Schrute",
+            "context": "Dwight spoils Pam's surprise for Michael",
+            "date_added": "2021-12-01"
+        }
+    },
+    {
+        "model": "quotewallapi.quote",
+        "pk": 4,
+        "fields": {
+            "user": 1,
+            "group": 2,
+            "quote_text": "How Sway?",
+            "quoter": "Kanye West",
+            "context": "How?",
+            "date_added": "2021-10-20"
+        }
+    },
+    {
+        "model": "quotewallapi.quote",
+        "pk": 5,
+        "fields": {
+            "user": 1,
+            "group": 2,
+            "quote_text": "George Bush does not care about black people.",
+            "quoter": "Yeezus",
+            "context": "Ye makes Mike Myers uncomfortable",
+            "date_added": "2021-10-01"
+        }
+    }
+]

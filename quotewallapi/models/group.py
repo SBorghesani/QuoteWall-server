@@ -7,4 +7,4 @@ class Group(models.Model):
     description = models.CharField(max_length=50)
     admin = models.ForeignKey(User, on_delete=models.CASCADE)
     private = models.BooleanField(default=False)
-    CreatedOn = models.DateField(auto_now=False, auto_now_add=False)
+    created_on = models.DateField(auto_now=False, auto_now_add=False)

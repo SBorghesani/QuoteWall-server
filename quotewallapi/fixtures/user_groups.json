@@ -1,0 +1,18 @@
+[
+    {
+        "model": "quotewallapi.usergroup",
+        "pk": 1,
+        "fields": {
+            "user": 1,
+            "group": 1
+        }
+    },
+    {
+        "model": "quotewallapi.usergroup",
+        "pk": 2,
+        "fields": {
+            "user": 1,
+            "group": 2
+        }
+    }
+]
