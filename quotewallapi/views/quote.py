@@ -58,7 +58,19 @@ class QuoteView(ViewSet):
         Returns:
             Response -- JSON serialized list of quotes
         """
-        quotes = Quote.objects.all()
+        user = self.request.auth.user
+        quotes = Quote.objects.all().order_by("-date_added")
+        groups = user.member_of.all()
+        group_query = self.request.query_params.get("group", None)
+        myfeed = self.request.query_params.get("myfeed", None)
+        
+
+        if group_query is not None:
+            quotes = quotes.filter(group__id=group_query)
+
+        if myfeed is not None:
+            quotes = quotes.filter(group__in = groups)
+
         serializer = QuoteSerializer(quotes, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 

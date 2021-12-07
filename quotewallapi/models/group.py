@@ -8,4 +8,4 @@ class Group(models.Model):
     admin = models.ForeignKey(User, on_delete=models.CASCADE)
     private = models.BooleanField(default=False)
     created_on = models.DateField(auto_now=False, auto_now_add=False)
-    members = models.ManyToManyField(User, through="UserGroup", related_name="member")
+    members = models.ManyToManyField(User, through="UserGroup", related_name="member_of")
