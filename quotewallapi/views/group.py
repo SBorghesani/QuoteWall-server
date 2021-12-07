@@ -57,7 +57,7 @@ class GroupView(ViewSet):
                 private=request.data['private'],
                 created_on=datetime.now().strftime("%Y-%m-%d")
             )
-
+            group.members.add(user)
             serializer = GroupSerializer(group, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -83,7 +83,13 @@ class GroupView(ViewSet):
         Returns:
             Response -- JSON serialized list of groups
         """
+        user_groups = self.request.query_params.get("mygroups", None)
+        user = self.request.auth.user
         groups = Group.objects.all()
+
+        if user_groups is not None:
+            groups = user.member_of.all()
+
         serializer = GroupSerializer(groups, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
