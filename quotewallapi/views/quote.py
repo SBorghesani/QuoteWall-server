@@ -14,7 +14,6 @@ from datetime import datetime
 
 class QuoteView(ViewSet):
     """QuoteWall"""
-
     def create(self, request):
         """Handle POST operations
         Returns:
