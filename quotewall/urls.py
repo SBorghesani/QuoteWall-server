@@ -17,11 +17,12 @@ from django.contrib import admin
 from django.conf.urls import include
 from django.urls import path
 from rest_framework import routers
-from quotewallapi.views import register_user, login_user, QuoteView, GroupView
+from quotewallapi.views import register_user, login_user, QuoteView, GroupView, UserView
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'quotes', QuoteView, 'quote')
 router.register(r'groups', GroupView, 'group')
+router.register(r'users', UserView, 'user')
 
 
 urlpatterns = [
