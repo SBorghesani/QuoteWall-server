@@ -65,7 +65,7 @@ class QuoteView(ViewSet):
         
 
         if group_query is not None:
-            quotes = quotes.filter(group__id=group_query)
+            quotes = quotes.filter(group__id=group_query).order_by("-date_added")
 
         if myfeed is not None:
             quotes = quotes.filter(group__in = groups)
