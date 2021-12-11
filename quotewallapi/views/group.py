@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework.decorators import action
-from quotewallapi.models import Quote, Group
+from quotewallapi.models import Quote, Group, ApprovalRequest
 from datetime import datetime
 from rest_framework.decorators import action
 
@@ -22,6 +22,7 @@ class GroupView(ViewSet):
 
         user=request.auth.user
         group_user=self.request.query_params.get('groupuser')
+        user_request=self.request.query_params.get('userrequest')
 
         try:
             group = Group.objects.get(pk=pk)
@@ -29,6 +30,18 @@ class GroupView(ViewSet):
             return Response({'message': "Group does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
         if request.method == "POST":
+            if user_request is not None:
+                try:
+                    approval_request = ApprovalRequest.objects.create(
+                        user=user,
+                        group=group,
+                        status=False
+                    )
+                    serializer = RequestSerializer(approval_request, context={'request': request})
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                
+                except Exception as ex:
+                    return Response({'reason': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             if group_user is not None:
                 try:
                     group.members.add(group_user)
@@ -58,30 +71,30 @@ class GroupView(ViewSet):
                 except Exception as ex:
                     return Response({'message': ex.args[0]})
 
-    @action(methods=['post', 'delete'], detail=True)
-    def admin_join(self, request, group_pk=None, user_pk=None):
-        """Managing users joining groups"""
+    # @action(methods=['post', 'delete'], detail=True)
+    # def admin_join(self, request, group_pk=None, user_pk=None):
+    #     """Managing users joining groups"""
 
-        admin=request.auth.user
+    #     admin=request.auth.user
 
-        try:
-            group = Group.objects.get(pk=group_pk)
-        except Group.DoesNotExist:
-            return Response({'message': "Group does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+    #     try:
+    #         group = Group.objects.get(pk=group_pk)
+    #     except Group.DoesNotExist:
+    #         return Response({'message': "Group does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if request.method == "POST":
-            try:
-                group.members.add(user_pk)
-                return Response({"message": "user joined group"}, status=status.HTTP_201_CREATED)
-            except Exception as ex:
-                return Response({'message': ex.args[0]})
+    #     if request.method == "POST":
+    #         try:
+    #             group.members.add(user_pk)
+    #             return Response({"message": "user joined group"}, status=status.HTTP_201_CREATED)
+    #         except Exception as ex:
+    #             return Response({'message': ex.args[0]})
 
-        elif request.method == "DELETE":
-            try:
-                group.members.remove(user_pk)
-                return Response({"message": "user left group"}, status=status.HTTP_204_NO_CONTENT)
-            except Exception as ex:
-                return Response({'message': ex.args[0]})
+    #     elif request.method == "DELETE":
+    #         try:
+    #             group.members.remove(user_pk)
+    #             return Response({"message": "user left group"}, status=status.HTTP_204_NO_CONTENT)
+    #         except Exception as ex:
+    #             return Response({'message': ex.args[0]})
 
 
     def create(self, request):
@@ -170,7 +183,11 @@ class GroupView(ViewSet):
         except Exception as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
+class RequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApprovalRequest
+        fields = ('group', 'user', 'status')
+        depth = 1
 class AdminGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
@@ -187,9 +204,10 @@ class GroupSerializer(serializers.ModelSerializer):
     Arguments:
         serializer type
     """
+    requests = RequestSerializer(many=True)
     admin = AdminGroupSerializer(many=False)
     members = MemberGroupSerializer(many=True)
     class Meta:
         model = Group
-        fields = ('id', 'name', 'description', 'admin', 'private', 'created_on', 'members')
+        fields = ('id', 'name', 'description', 'admin', 'private', 'created_on', 'members', 'requests')
         depth = 1
