@@ -21,6 +21,7 @@ class GroupView(ViewSet):
         """Managing users joining groups"""
 
         user=request.auth.user
+        group_user=self.request.query_params.get('groupuser')
 
         try:
             group = Group.objects.get(pk=pk)
@@ -28,15 +29,56 @@ class GroupView(ViewSet):
             return Response({'message': "Group does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
         if request.method == "POST":
+            if group_user is not None:
+                try:
+                    group.members.add(group_user)
+                    return Response({"message": 'user added to group'}, status=status.HTTP_201_CREATED)
+                except Exception as ex:
+                    return Response({'message': ex.args[0]})
+            else:
+                try:
+                    group.members.add(user)
+                    return Response({"message": "user joined group"}, status=status.HTTP_201_CREATED)
+                except Exception as ex:
+                    return Response({'message': ex.args[0]})
+
+        elif request.method == "DELETE":
+            if (group_user is not None and int(group_user) != group.admin.id):
+                try:
+                    group.members.remove(group_user)
+                    return Response({"message": 'user removed from group'}, status=status.HTTP_204_NO_CONTENT)
+                except Exception as ex:
+                    return Response({'message': ex.args[0]})
+            elif (user.id == group.admin.id):
+                return Response({"message": "cannot remove admin"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                try:
+                    group.members.remove(user)
+                    return Response({"message": "user left group"}, status=status.HTTP_204_NO_CONTENT)
+                except Exception as ex:
+                    return Response({'message': ex.args[0]})
+
+    @action(methods=['post', 'delete'], detail=True)
+    def admin_join(self, request, group_pk=None, user_pk=None):
+        """Managing users joining groups"""
+
+        admin=request.auth.user
+
+        try:
+            group = Group.objects.get(pk=group_pk)
+        except Group.DoesNotExist:
+            return Response({'message': "Group does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if request.method == "POST":
             try:
-                group.members.add(user)
+                group.members.add(user_pk)
                 return Response({"message": "user joined group"}, status=status.HTTP_201_CREATED)
             except Exception as ex:
                 return Response({'message': ex.args[0]})
 
         elif request.method == "DELETE":
             try:
-                group.members.remove(user)
+                group.members.remove(user_pk)
                 return Response({"message": "user left group"}, status=status.HTTP_204_NO_CONTENT)
             except Exception as ex:
                 return Response({'message': ex.args[0]})
