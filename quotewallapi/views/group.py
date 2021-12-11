@@ -42,7 +42,7 @@ class GroupView(ViewSet):
                 
                 except Exception as ex:
                     return Response({'reason': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            if group_user is not None:
+            elif group_user is not None:
                 try:
                     group.members.add(group_user)
                     return Response({"message": 'user added to group'}, status=status.HTTP_201_CREATED)
@@ -56,6 +56,12 @@ class GroupView(ViewSet):
                     return Response({'message': ex.args[0]})
 
         elif request.method == "DELETE":
+            if user_request is not None:
+                try:
+                    group.requests.remove(user_request)
+                    return Response({'message': "user removed from requests"}, status=status.HTTP_204_NO_CONTENT)
+                except Exception as ex:
+                    return Response({'message': ex.args[0]})
             if (group_user is not None and int(group_user) != group.admin.id):
                 try:
                     group.members.remove(group_user)
@@ -183,11 +189,6 @@ class GroupView(ViewSet):
         except Exception as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class RequestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ApprovalRequest
-        fields = ('group', 'user', 'status')
-        depth = 1
 class AdminGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
@@ -197,6 +198,12 @@ class MemberGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ('id', 'username')
+
+class RequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ('id', 'username')
+        depth = 1
 
 class GroupSerializer(serializers.ModelSerializer):
     """JSON serializer for groups
