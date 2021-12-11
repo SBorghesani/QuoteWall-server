@@ -31,14 +31,16 @@ class GroupView(ViewSet):
 
         if request.method == "POST":
             if user_request is not None:
+                # try:
+                #     approval_request = ApprovalRequest.objects.create(
+                #         user=user,
+                #         group=group,
+                #         status=False
+                #     )
                 try:
-                    approval_request = ApprovalRequest.objects.create(
-                        user=user,
-                        group=group,
-                        status=False
-                    )
-                    serializer = RequestSerializer(approval_request, context={'request': request})
-                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                    group.requests.add(user)
+                    # serializer = RequestSerializer(approval_request, context={'request': request})
+                    return Response({"message": 'request submitted'}, status=status.HTTP_201_CREATED)
                 
                 except Exception as ex:
                     return Response({'reason': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
