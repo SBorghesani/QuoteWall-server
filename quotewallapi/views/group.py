@@ -31,12 +31,6 @@ class GroupView(ViewSet):
 
         if request.method == "POST":
             if user_request is not None:
-                # try:
-                #     approval_request = ApprovalRequest.objects.create(
-                #         user=user,
-                #         group=group,
-                #         status=False
-                #     )
                 try:
                     group.requests.add(user)
                     # serializer = RequestSerializer(approval_request, context={'request': request})
