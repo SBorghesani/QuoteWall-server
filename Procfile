@@ -1,0 +1,1 @@
+web: gunicorn quotewall.wsgi --log-file -
