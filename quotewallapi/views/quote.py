@@ -68,7 +68,7 @@ class QuoteView(ViewSet):
             quotes = quotes.filter(group__id=group_query).order_by("-date_added")
 
         if myfeed is not None:
-            quotes = quotes.filter(group__in = groups)
+            quotes = quotes.filter(group__in = groups)[:20]
 
         serializer = QuoteSerializer(quotes, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)

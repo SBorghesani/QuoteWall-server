@@ -145,7 +145,7 @@ class GroupView(ViewSet):
         groups = Group.objects.all()
 
         if user_groups is not None:
-            groups = user.member_of.all()
+            groups = user.member_of.all()[:10]
 
         serializer = GroupSerializer(groups, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
