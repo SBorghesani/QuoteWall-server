@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework.decorators import action
-from quotewallapi.models import Quote, Group
+from quotewallapi.models import Quote, Group, ApprovalRequest
 from datetime import datetime
 from rest_framework.decorators import action
 
@@ -21,6 +21,8 @@ class GroupView(ViewSet):
         """Managing users joining groups"""
 
         user=request.auth.user
+        group_user=self.request.query_params.get('groupuser')
+        user_request=self.request.query_params.get('userrequest')
 
         try:
             group = Group.objects.get(pk=pk)
@@ -28,18 +30,73 @@ class GroupView(ViewSet):
             return Response({'message': "Group does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
         if request.method == "POST":
-            try:
-                group.members.add(user)
-                return Response({"message": "user joined group"}, status=status.HTTP_201_CREATED)
-            except Exception as ex:
-                return Response({'message': ex.args[0]})
+            if user_request is not None:
+                try:
+                    group.requests.add(user)
+                    # serializer = RequestSerializer(approval_request, context={'request': request})
+                    return Response({"message": 'request submitted'}, status=status.HTTP_201_CREATED)
+                
+                except Exception as ex:
+                    return Response({'reason': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            elif group_user is not None:
+                try:
+                    group.members.add(group_user)
+                    return Response({"message": 'user added to group'}, status=status.HTTP_201_CREATED)
+                except Exception as ex:
+                    return Response({'message': ex.args[0]})
+            else:
+                try:
+                    group.members.add(user)
+                    return Response({"message": "user joined group"}, status=status.HTTP_201_CREATED)
+                except Exception as ex:
+                    return Response({'message': ex.args[0]})
 
         elif request.method == "DELETE":
-            try:
-                group.members.remove(user)
-                return Response({"message": "user left group"}, status=status.HTTP_204_NO_CONTENT)
-            except Exception as ex:
-                return Response({'message': ex.args[0]})
+            if user_request is not None:
+                try:
+                    group.requests.remove(user_request)
+                    return Response({'message': "user removed from requests"}, status=status.HTTP_204_NO_CONTENT)
+                except Exception as ex:
+                    return Response({'message': ex.args[0]})
+            if (group_user is not None and int(group_user) != group.admin.id):
+                try:
+                    group.members.remove(group_user)
+                    return Response({"message": 'user removed from group'}, status=status.HTTP_204_NO_CONTENT)
+                except Exception as ex:
+                    return Response({'message': ex.args[0]})
+            elif (user.id == group.admin.id):
+                return Response({"message": "cannot remove admin"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                try:
+                    group.members.remove(user)
+                    return Response({"message": "user left group"}, status=status.HTTP_204_NO_CONTENT)
+                except Exception as ex:
+                    return Response({'message': ex.args[0]})
+
+    # @action(methods=['post', 'delete'], detail=True)
+    # def admin_join(self, request, group_pk=None, user_pk=None):
+    #     """Managing users joining groups"""
+
+    #     admin=request.auth.user
+
+    #     try:
+    #         group = Group.objects.get(pk=group_pk)
+    #     except Group.DoesNotExist:
+    #         return Response({'message': "Group does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+    #     if request.method == "POST":
+    #         try:
+    #             group.members.add(user_pk)
+    #             return Response({"message": "user joined group"}, status=status.HTTP_201_CREATED)
+    #         except Exception as ex:
+    #             return Response({'message': ex.args[0]})
+
+    #     elif request.method == "DELETE":
+    #         try:
+    #             group.members.remove(user_pk)
+    #             return Response({"message": "user left group"}, status=status.HTTP_204_NO_CONTENT)
+    #         except Exception as ex:
+    #             return Response({'message': ex.args[0]})
 
 
     def create(self, request):
@@ -128,7 +185,6 @@ class GroupView(ViewSet):
         except Exception as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 class AdminGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
@@ -139,15 +195,22 @@ class MemberGroupSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = ('id', 'username')
 
+class RequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ('id', 'username')
+        depth = 1
+
 class GroupSerializer(serializers.ModelSerializer):
     """JSON serializer for groups
     
     Arguments:
         serializer type
     """
+    requests = RequestSerializer(many=True)
     admin = AdminGroupSerializer(many=False)
     members = MemberGroupSerializer(many=True)
     class Meta:
         model = Group
-        fields = ('id', 'name', 'description', 'admin', 'private', 'created_on', 'members')
+        fields = ('id', 'name', 'description', 'admin', 'private', 'created_on', 'members', 'requests')
         depth = 1
