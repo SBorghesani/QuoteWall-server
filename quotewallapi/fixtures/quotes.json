@@ -53,9 +53,9 @@
         "fields": {
             "user": 1,
             "group": 2,
-            "quote_text": "George Bush does not care about black people.",
+            "quote_text": "Yes, I do like fish sticks.",
             "quoter": "Yeezus",
-            "context": "Ye makes Mike Myers uncomfortable",
+            "context": "Kanye misses the joke",
             "date_added": "2021-10-01"
         }
     }
