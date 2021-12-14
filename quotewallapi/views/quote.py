@@ -71,7 +71,7 @@ class QuoteView(ViewSet):
             quotes = quotes.filter(group__id = groups)[:20]
 
         else:
-            quotes = quotes.filter(group_private = False)
+            quotes = quotes.filter(group__private = False)
 
         serializer = QuoteSerializer(quotes, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
