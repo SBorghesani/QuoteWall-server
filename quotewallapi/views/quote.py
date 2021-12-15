@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework.decorators import action
+from django.db.models import Q
 from quotewallapi.models import Quote, Group
 from datetime import datetime
 
@@ -62,13 +63,23 @@ class QuoteView(ViewSet):
         groups = user.member_of.all()
         group_query = self.request.query_params.get("group", None)
         myfeed = self.request.query_params.get("myfeed", None)
+        search = self.request.query_params.get("q", None)
         
 
         if group_query is not None:
             quotes = quotes.filter(group__id=group_query).order_by("-date_added")
+            if search is not None:
+                quotes = quotes.filter(
+                    Q(quote_text__icontains=search) |
+                    Q(context__icontains=search)
+                )
+            
 
-        if myfeed is not None:
+        elif myfeed is not None:
             quotes = quotes.filter(group__in = groups)[:20]
+
+        else:
+            quotes = quotes.filter(group__private = False)[:20]
 
         serializer = QuoteSerializer(quotes, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)

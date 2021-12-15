@@ -9,6 +9,7 @@ from rest_framework import serializers
 from rest_framework import status
 from rest_framework.decorators import action
 from quotewallapi.models import Quote, Group, ApprovalRequest
+from django.db.models import Q
 from datetime import datetime
 from rest_framework.decorators import action
 
@@ -33,7 +34,6 @@ class GroupView(ViewSet):
             if user_request is not None:
                 try:
                     group.requests.add(user)
-                    # serializer = RequestSerializer(approval_request, context={'request': request})
                     return Response({"message": 'request submitted'}, status=status.HTTP_201_CREATED)
                 
                 except Exception as ex:
@@ -72,32 +72,6 @@ class GroupView(ViewSet):
                     return Response({"message": "user left group"}, status=status.HTTP_204_NO_CONTENT)
                 except Exception as ex:
                     return Response({'message': ex.args[0]})
-
-    # @action(methods=['post', 'delete'], detail=True)
-    # def admin_join(self, request, group_pk=None, user_pk=None):
-    #     """Managing users joining groups"""
-
-    #     admin=request.auth.user
-
-    #     try:
-    #         group = Group.objects.get(pk=group_pk)
-    #     except Group.DoesNotExist:
-    #         return Response({'message': "Group does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-
-    #     if request.method == "POST":
-    #         try:
-    #             group.members.add(user_pk)
-    #             return Response({"message": "user joined group"}, status=status.HTTP_201_CREATED)
-    #         except Exception as ex:
-    #             return Response({'message': ex.args[0]})
-
-    #     elif request.method == "DELETE":
-    #         try:
-    #             group.members.remove(user_pk)
-    #             return Response({"message": "user left group"}, status=status.HTTP_204_NO_CONTENT)
-    #         except Exception as ex:
-    #             return Response({'message': ex.args[0]})
-
 
     def create(self, request):
         """Handle POST operations
@@ -143,6 +117,13 @@ class GroupView(ViewSet):
         user_groups = self.request.query_params.get("mygroups", None)
         user = self.request.auth.user
         groups = Group.objects.all()
+        search = self.request.query_params.get("q", None)
+
+        if search is not None:
+            groups = Group.objects.filter(
+                Q(name__icontains=search) |
+                Q(description__icontains=search)
+            )
 
         if user_groups is not None:
             groups = user.member_of.all()[:10]

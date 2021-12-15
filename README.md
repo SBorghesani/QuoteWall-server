@@ -11,9 +11,11 @@ easily remember and explore memorable quotes.
 1. Clone this repository and change to the directory in the terminal.
 2. Run `pipenv shell`
 3. Run `pipenv install`
-4. Run migrations and make migrations
-5. Seed database with python3 manage.py loaddata {table name}
-###LoadData Order
+4. Run python3 manage.py makemigrations quotewallapi
+5. Run python3 manage.py migrate
+6. Seed database with python3 manage.py loaddata {table name}
+
+### LoadData Order
 1.users
 2.tokens
 3.groups
