@@ -34,7 +34,6 @@ class GroupView(ViewSet):
             if user_request is not None:
                 try:
                     group.requests.add(user)
-                    # serializer = RequestSerializer(approval_request, context={'request': request})
                     return Response({"message": 'request submitted'}, status=status.HTTP_201_CREATED)
                 
                 except Exception as ex:
