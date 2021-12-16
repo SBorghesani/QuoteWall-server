@@ -38,6 +38,7 @@ class GroupView(ViewSet):
                 
                 except Exception as ex:
                     return Response({'reason': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    
             elif group_user is not None:
                 try:
                     group.members.add(group_user)
