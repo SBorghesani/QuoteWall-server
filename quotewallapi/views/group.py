@@ -117,17 +117,17 @@ class GroupView(ViewSet):
         """
         user_groups = self.request.query_params.get("mygroups", None)
         user = self.request.auth.user
-        groups = Group.objects.all()
+        groups = Group.objects.all().order_by("-created_on")
         search = self.request.query_params.get("q", None)
 
         if search is not None:
             groups = Group.objects.filter(
                 Q(name__icontains=search) |
                 Q(description__icontains=search)
-            )
+            ).order_by("-created_on")
 
         if user_groups is not None:
-            groups = user.member_of.all()[:10]
+            groups = user.member_of.all().order_by("-created_on")[:10]
 
         serializer = GroupSerializer(groups, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)

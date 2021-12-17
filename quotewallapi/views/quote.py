@@ -76,10 +76,10 @@ class QuoteView(ViewSet):
             
 
         elif myfeed is not None:
-            quotes = quotes.filter(group__in = groups)[:20]
+            quotes = quotes.filter(group__in = groups).order_by("-date_added")[:20]
 
         else:
-            quotes = quotes.filter(group__private = False)[:20]
+            quotes = quotes.filter(group__private = False).order_by("-date_added")[:20]
 
         serializer = QuoteSerializer(quotes, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
