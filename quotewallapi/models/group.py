@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 
 
 class Group(models.Model):
-    name = models.CharField(max_length=50)
-    description = models.CharField(max_length=50)
+    name = models.CharField(max_length=150)
+    description = models.TextField()
     admin = models.ForeignKey(User, on_delete=models.CASCADE)
     private = models.BooleanField(default=False)
     created_on = models.DateField(auto_now=False, auto_now_add=False)
